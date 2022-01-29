@@ -14,8 +14,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/V1/sendsms', [App\Http\Controllers\Api\V1\SMSController::class, 'sendsms'])->name('sendsms');
+Route::post('/V1/login', [App\Http\Controllers\Api\V1\SMSController::class, 
+'login'])->name('login');
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+//protocted apis
+Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::post('/V1/sendsms', [App\Http\Controllers\Api\V1\SMSController::class, 
+    'sendsms'])->name('sendsms');
 });

@@ -17,7 +17,8 @@ class CreateSendSMSTable extends Migration
             $table->id();
             $table->string('status');
             $table->string('message');
-            $table->string('recipient');           
+            $table->string('recipient');
+            $table->string('date_sent');           
             $table->timestamps();
         });
     }

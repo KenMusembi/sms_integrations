@@ -11,7 +11,9 @@ class SendSMS extends Model
 
      //adding fields to save sms information
      protected $fillable = [       
+        'status',
+        'message',
         'recipient',
-        'message',            
+        'date_sent'              
     ];
 }
