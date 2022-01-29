@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::post('/V1/sendsms', [App\Http\Controllers\Api\V1\SMSController::class, 'sendsms'])->name('sendsms');
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });

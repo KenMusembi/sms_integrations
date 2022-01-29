@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class SendSMS extends Model
 {
     use HasFactory;
+
+     //adding fields to save sms information
+     protected $fillable = [       
+        'recipient',
+        'message',            
+    ];
 }
