@@ -20,4 +20,4 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 Auth::routes();
 
-Route::post('/sendsms', [App\Http\Controllers\Api\V1\SMSController::class, 'sendsms'])->name('sendsms');
+Route::post('/send_message', [App\Http\Controllers\HomeController::class, 'send_message'])->name('send_message');
