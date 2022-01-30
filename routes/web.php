@@ -19,5 +19,3 @@ Route::get('/', function () {return view('home');})->middleware('auth');
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Auth::routes();
-
-Route::post('/send_message', [App\Http\Controllers\HomeController::class, 'send_message'])->name('send_message');

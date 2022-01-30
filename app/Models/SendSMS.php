@@ -9,6 +9,9 @@ class SendSMS extends Model
 {
     use HasFactory;
 
+    //table referenced
+    protected $table = 'send_s_m_s';
+
      //adding fields to save sms information
      protected $fillable = [       
         'status',

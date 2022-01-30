@@ -14,10 +14,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+//publis api, one does not need to have a token to access
 Route::post('/V1/login', [App\Http\Controllers\Api\V1\SMSController::class, 
 'login'])->name('login');
 
-//protocted apis
+//protocted apis, one haas to have a token to access
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/V1/sendsms', [App\Http\Controllers\Api\V1\SMSController::class, 
     'sendsms'])->name('sendsms');

@@ -23,27 +23,26 @@
 
                    
 <div class="container">
-  <h2>Enter user details to send sms to</h2>
+  <h2>SMS Message History</h2>
 
-<form action="{{route('send_message')}}" id="send_message" method="post" enctype="multipart/form-data">
-@csrf
-  <div class="form-group">
-    <label for="from">From/Short Code (readonly field)</label>
-    <input type="text" class="form-control" id="from" aria-describedby="fromHelp" value="Mojagate" readonly>
-  </div>
-  <div class="form-group">
-    <label for="recipient">Recipient</label>
-    <input type="number" class="form-control" id="recipient" aria-describedby="recipientHelp" placeholder="254748050434">
-    <small id="recipientHelp" class="form-text text-muted">enter the sms recievers number, i.e 254748050434.</small>
-  </div>
-  <div class="form-group">
-    <label for="message">Message</label>
-    <input type="text" class="form-control" id="message" placeholder="Happy New Year from Mojagate">
-  </div> 
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
-
-</div>
+<table class="table">
+<tr>
+<td>Id</td>
+<td>First Name</td>
+<td>Last Name</td>
+<td>City Name</td>
+<td>Date</td>
+</tr>
+@foreach ($records as $record)
+<tr>
+<td>{{ $record->id }}</td>
+<td>{{ $record->status }}</td>
+<td>{{ $record->recipient }}</td>
+<td>{{ $record->message }}</td>
+<td>{{ $record->date_sent }}</td>
+</tr>
+@endforeach
+</table>
 
                 </div>
             </div>

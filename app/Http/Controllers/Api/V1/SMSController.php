@@ -16,12 +16,14 @@ class SMSController extends Controller
     protect the send sms function by having user provide credentials
     to get unique token to be used in the send sms route
     */
-    public function login(Request $request){       
+    public function login(Request $request){                   
         $user = User::where('email', $request->email)->first();
         $validCredentials = Hash::check($request['password'], $user->getAuthPassword());
         if ($validCredentials){
             $token = $user->createToken('myapptoken')->plainTextToken;
-        }       
+        }
+        
+        //return a 201 repsonse and show token when a login occurs
         $response = [
             'user' => $user,
             'token' => $token
@@ -29,24 +31,60 @@ class SMSController extends Controller
         return response($response, 201);
     }    
     
+    
+    //function to send sms
     public function sendsms(Request $request, SendSMS $sendsms)
-    {       
+    {   
+        //we get saved variables from the env file
+        $base_url = config('custom_variables.base_url'); 
+
+        $username = config('custom_variables.username'); 
+        
+        $password= config('custom_variables.password'); 
+        
+        $webhook= config('custom_variables.webhook'); 
+        
+        $sender= config('custom_variables.sender'); 
+        
+        $client = new \GuzzleHttp\Client();
+        
+        //we first login to get a bearer token to use for the api
+        $response = $client->post(
+            $base_url.'/login',
+            [
+                'headers' => [
+                    'Accept' => 'application/json',
+                ],
+                'json' => [
+                    'email' => $username ,
+                    'password' => $password,
+                ],
+            ]
+        );
+        //we now get the token from the json response
+        $body = $response->getBody();
+        $bearer_token = json_decode($body,true);
+        $token = $bearer_token['data']['token'];
+        
+         
         $headers = [
-            'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZDFlYzE4Y2ExMzFiZjFiMjk4YTRhODU1ZDBkMmZmYTY1NjliNjUzM2M0ZjUyNDlmNjI2NDZkNWI3ZDk1NTZjNzg5YTQ2YjAwYWViNTRlNGMiLCJpYXQiOjE2NDMzMDkwNzAuNjgyODkzLCJuYmYiOjE2NDMzMDkwNzAuNjgyODk3LCJleHAiOjE2NzQ4NDUwNzAuNjc3MTc5LCJzdWIiOiIyMCIsInNjb3BlcyI6W119.WOj0fiK5Kr-BHWd1UDs_sDB-0kaVH19A04Mh-c3OPaKs22j4pmAcRLYLMRJCFivracQE6cOa2XFEhcbqmyRL31cFZPf1r8sW6bwCTzf7WmWiX8Qs7qREkaQwed4qhQ404Jo1-w4PMaFWyLq17p5lgjORfGhpsJJBhXvUp5FKP2WuLolLW2-r480Lvb0N6UTsr1JyvJUqBDS8AcnkUGY6K1bgTrNbLZkzLyP9IZ2KVKiJxP7vsosC8kPlaZMyjAKRso5B8iur38qACOonpjyyraEjVZyidx4aKKOGFoe2MpeLcyO4JYjC3ycFSszXmEuH5QwEdlMT5-g603QBgM-ZHsP9tz3Zo3w6mc0f1zH_GoJpulFCdjne0cVjgrEi3dgs4ygl1UlKQ8px_mnkunnm7QHPxzl5YC6jQyX6keYn7S4Go_feFThFEiXoeWA7CHJT8Bx18ATr2VQo0BQa0OTo9QwmKlwSkg6OToNKRXY2nSrhejPMZhFyAexKCAW36gZaNXiHtQz--4Ciw1R71IK6u3R1vAjA48TfI_DR3R7dEw-3LvparIf26iXPxQptXDCgICO0i1Qfc6-hASxm4X8fad-o3cKQq6jqcyvlFaErHitJj48HRw1CWirTmj4tWTG9RQSWELKmFPmKs038T4g8rrT_KXsIiAoThKD8U7UzwhU',
+            'Authorization' => 'Bearer '. $token,
             'Accept' => 'application/json',
        ];
 
        $data =[
-            'from' => 'MOJAGATE',
+            'from' => $sender,
             'phone' => $request->recipient,
             'message' => $request->message,
             'message_id' => Str::random(8),
-            'webhook_url' => 'https://mojagate.com/sms-webhook',
+            'webhook_url' => $webhook,
         
         ];       
         
-        $result =  Http::withHeaders($headers)->post('https://api.mojasms.dev/sendsms',$data)->json();
-
+        //this result variable has the json repsonse from the api
+        $result =  Http::withHeaders($headers)->post($base_url.'/sendsms',$data)->json();
+        
+        //if we get a success message from the api, we record the transaction details in the database
         if($result['status'] == 'Success'){
             $date_sent = $result['data']['recipients'][0]['created_at'];
             
@@ -57,12 +95,11 @@ class SMSController extends Controller
             $sendsms->date_sent = $date_sent;        
             $sendsms->save();  
             
-            return response('Message sent succesfully', 201);         
+            /*
+            return the 201 response saying message was sent succesfully
+            the response can be further customized according tot he usage
+            */
+            return response('Message sent succesfully', 201);               
         }
-    }
-
-    public function sendsms_web(Request $request, SendSMS $sendsms)
-    {
-       
-    }
+    }   
 }
